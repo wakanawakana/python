@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Apr 13 11:01:30 2017
+
+This is a tool to label a box for YOLO
+Use in a hierarchy with images folder
+Save csv with Exit
 """
 
 import cv2
