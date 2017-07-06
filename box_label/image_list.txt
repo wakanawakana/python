@@ -1,0 +1,8 @@
+# boxing list sample
+# requires full path description
+C:\Users\wakanawakana\mLearn\darknet\images\A\image1.png
+C:\Users\wakanawakana\mLearn\darknet\images\A\image2.png
+C:\Users\wakanawakana\mLearn\darknet\images\A\image3.png
+C:\Users\wakanawakana\mLearn\darknet\images\B\image1.png
+C:\Users\wakanawakana\mLearn\darknet\images\A\image2.png
+C:\Users\wakanawakana\mLearn\darknet\images\A\image3.png
