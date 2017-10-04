@@ -10,6 +10,8 @@ import sys
 import cv2
 import glob
 from scipy import ndimage
+from scipy import ndimage
+from skimage.feature import local_binary_pattern
 
 if __name__ == '__main__':
     mode = 2
