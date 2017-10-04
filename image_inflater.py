@@ -36,7 +36,17 @@ if __name__ == '__main__':
         elif mode == 5: #270
             img = cv2.imread(filelist[n])
             img = ndimage.rotate(img, 270, reshape=True)
-            
+        elif mode == 6: #resize 1/2
+            img = cv2.imread(filelist[n])
+            feald_image = np.zeros((img.shape[0]/2, img.shape[1]/2, 3), dtype=np.uint8)
+            for n in range(0, img.shape[0]/2-1):
+                for i in range(0, img.shape[1]/2-1):
+                    feald_image[n,i,:] = img[n*2 + 0,i*2,:]
+            img = feald_image
+        elif mode == 7: #LBP
+            img = cv2.imread(filelist[n], cv2.IMREAD_GRAYSCALE)
+            img = local_binary_pattern(img, 8, 1)            
+
         cv2.imwrite(savefile, img)
             
         
