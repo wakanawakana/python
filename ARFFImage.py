@@ -59,18 +59,14 @@ class ARFFImage:
         return obj
     
     def toMask(self, obj, width, height):
-        '''
-        @RELATION  ImageMask
-        @ATTRIBUTE x integer
-        @ATTRIBUTE y integer
-        '''
+        # support @RELATION  MaskImage
         img = np.zeros((width, height, 1), np.uint8)
         for i in range(0, len(obj['data'])):
             img[obj['data'][i][0], obj['data'][i][1]] = 255
         return img
 
     def toImage(self, obj):
-        # support @RELATION  MaskImage, GrayImage, RGBImage, RGBAImage 
+        # support @RELATION  GrayImage, RGBImage, RGBAImage 
         width = height = 0
         for i in range(len(obj['data'])):
             width = max(width, obj['data'][i][0])
