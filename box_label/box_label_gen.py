@@ -2,11 +2,8 @@
 """
 Created on Thu Apr 13 11:01:30 2017
 
-This is a tool to label a box for YOLO
-Use in a hierarchy with images folder
-Save csv with Exit
+@author: 10008777
 """
-
 import cv2
 import os
 import sys
@@ -20,10 +17,10 @@ import Tkinter
 
 root = Tkinter.Tk()
 tkvar_testno =Tkinter.IntVar(root)
-global currimg, itemno, listno, bx, by, bn
+global currimg, itemno, listno, bx, by, bw, bh, bn
 labels = []
   
-def create_box(img, x, y, w, h, color = (0,0,255), line = 2):
+def create_box(img, x, y, w, h, color = (0,0,255), line = 1):
     out = img.copy()
     cv2.rectangle(out, (x,y), (x+w,y+h), color, line)
     return out
@@ -46,7 +43,7 @@ def load_labels(csv, imglist):
             splitline = csv[no].split(',')
             listno = find_itemno(splitline[0], imglist)
             if listno == -1: continue
-            labels.append([listno, int(splitline[1]), int(splitline[4])+15, int(splitline[5])+15])
+            labels.append([listno, int(splitline[1]), int(splitline[4]), int(splitline[5]), int(splitline[6]), int(splitline[7])])
 #            labels.append([listno, int(splitline[1]), int(splitline[4])/4, int(splitline[5])/4])
 
     else:
@@ -85,7 +82,7 @@ def save_csv(imglists, filepath):
     for n in range(0, len(labels)):
         l = labels[n][0]
         fname = os.path.basename(imglists[l])
-        recode = "{}, {}, {}, {}, {}, {}\n".format(fname, labels[n][1], 0, 0, labels[n][2], labels[n][3])
+        recode = "{}, {}, {}, {}, {}, {}, {}, {}\n".format(fname, labels[n][1], 0, 0, labels[n][2], labels[n][3], labels[n][4], labels[n][5])
         f.write(recode)
     return
     
@@ -143,27 +140,114 @@ def img_back(label, topdir, imglists, button):
     label_setimg(label, img)
     button.config(state="disabled")
     return
+
+def center_l(event, label, listno, button):
+    global labels, bx, by, bw, bh
+    bx -= 1
+    img = curr_labels_boximg(listno, currimg)
+    img = create_box(img, bx - bw/2, by - bh/2, bw, bh)
+    label_setimg(label, img)
+    button.config(state="disabled")
+    return
+
+def center_r(event, label, listno, button):
+    global labels, bx, by, bw, bh
+    bx += 1
+    img = curr_labels_boximg(listno, currimg)
+    img = create_box(img, bx - bw/2, by - bh/2, bw, bh)
+    label_setimg(label, img)
+    button.config(state="disabled")
+    return
+
+def center_u(event, label, listno, button):
+    global labels, bx, by, bw, bh
+    by -= 1
+    img = curr_labels_boximg(listno, currimg)
+    img = create_box(img, bx - bw/2, by - bh/2, bw, bh)
+    label_setimg(label, img)
+    button.config(state="disabled")
+    return
+
+def center_b(event, label, listno, button):
+    global labels, bx, by, bw, bh
+    by += 1
+    img = curr_labels_boximg(listno, currimg)
+    img = create_box(img, bx - bw/2, by - bh/2, bw, bh)
+    label_setimg(label, img)
+    button.config(state="disabled")
+    return
     
+def wide_lr(event, label, listno, button):
+    global labels, bx, by, bw, bh
+    bw += 1
+    img = curr_labels_boximg(listno, currimg)
+    img = create_box(img, bx - bw/2, by - bh/2, bw, bh)
+    label_setimg(label, img)
+    button.config(state="disabled")
+    return
+    
+def short_lr(event, label, listno, button):
+    global labels, bx, by, bw, bh
+    bw -= 1
+    img = curr_labels_boximg(listno, currimg)
+    img = create_box(img, bx - bw/2, by - bh/2, bw, bh)
+    label_setimg(label, img)
+    button.config(state="disabled")
+    return
+
+def wide_ub(event, label, listno, button):
+    global labels, bx, by, bw, bh
+    bh += 1
+    img = curr_labels_boximg(listno, currimg)
+    img = create_box(img, bx - bw/2, by - bh/2, bw, bh)
+    label_setimg(label, img)
+    button.config(state="disabled")
+    return
+    
+def short_ub(event, label, listno, button):
+    global labels, bx, by, bw, bh
+    bh -= 1
+    img = curr_labels_boximg(listno, currimg)
+    img = create_box(img, bx - bw/2, by - bh/2, bw, bh)
+    label_setimg(label, img)
+    button.config(state="disabled")
+    return
+
 def click_left(event, label, listno, button):
-    global labels, bx, by
+    global labels, bx, by, bw, bh
     print "click", event.x, event.y
     bx = event.x
     by = event.y
+    bw = bh = 30
     img = curr_labels_boximg(listno, currimg)
-    img = create_box(img, event.x - 15, event.y -15, 30, 30)
+    img = create_box(img, bx - 15, by - 15, bw, bh)
     label_setimg(label, img)
     button.config(state="disabled")
+    return
+
+def click_right(event, label, listno, button):
+    global labels, bx, by, bw, bh
+    print "click", event.x, event.y
+    bw = event.x - bx
+    bh = event.y - by
+    print "w:h", bw, bh
+    img = curr_labels_boximg(listno, currimg)
+    img = create_box(img, bx, by, bw, bh)
+    label_setimg(label, img)
+    button.config(state="disabled")
+    bx = bx + bw/2
+    by = by + bh/2
     return
     
 def curr_labels_boximg(no, img):
     for n in range(0, len(labels)):
         if labels[n][0] == no:
-            img = create_box(img, labels[n][2] -15, labels[n][3] -15, 30, 30, color=(0,255,0))
+            img = create_box(img, labels[n][2] - labels[n][4]/2, labels[n][3] - labels[n][5]/2, labels[n][4], labels[n][5], color=(0,255,0))
     return img
     
-def box_add(label, listno, bx, by):
+def box_add(label, listno, bx, by, bw, bh):
     global itemno
-    labels.append([listno, itemno, bx, by])
+    labels.append([listno, itemno, bx, by, bw, bh])
     img = curr_labels_boximg(listno, currimg)
     label_setimg(label, img)
     itemno += 1
@@ -177,9 +261,9 @@ def boxsel(label, button):
     for n in range(0, len(labels)):
         if labels[n][0] == listno:
             if labels[n][1] == bn:
-                img = create_box(img, labels[n][2]-15, labels[n][3]-15, 30, 30, color=(0,0,255))
+                img = create_box(img, labels[n][2]- labels[n][4]/2, labels[n][3]-labels[n][5]/2, labels[n][4], labels[n][5], color=(0,0,255))
             else:
-                img = create_box(img, labels[n][2]-15, labels[n][3]-15, 30, 30, color=(0,255,0))
+                img = create_box(img, labels[n][2]-labels[n][4]/2, labels[n][3]-labels[n][5]/2, labels[n][4], labels[n][5], color=(0,255,0))
     label_setimg(label, img)
     button.config(state="normal")
     return
@@ -192,13 +276,13 @@ def boxdel(label, button):
                 labels.pop(n)
                 
     itemno = find_label_entry(listno)
-    img = curr_labels_boximg(listno, currimg)
+    img = curr_labels_boximg(listno, currimg, 30, 30)
     label_setimg(label, img)
     button.config(state="disabled")
     return 
 
 def create_cls_window(root, topdir, imglists):
-    global currimg, itemno, listno, bx, by, bs
+    global currimg, itemno, listno, bx, by, bw, bh, bs
     mainframe = Tkinter.Frame(root)
     mainframe.grid(column=0,row=0, sticky=(Tkinter.N,Tkinter.W,Tkinter.E,Tkinter.S) )
 #    mainframe.columnconfigure(1, weight = 0)
@@ -224,12 +308,21 @@ def create_cls_window(root, topdir, imglists):
     button32.grid(row=3,column=2)
     button33 = Tkinter.Button(mainframe, text = 'Back', command = lambda: img_back(label, topdir, imglists, button13))
     button33.grid(row=3,column=3)
-    button34 = Tkinter.Button(mainframe, text = 'Add(a)', command = lambda: box_add(label, listno, bx, by))
+    button34 = Tkinter.Button(mainframe, text = 'Add(a)', command = lambda: box_add(label, listno, bx, by, bw, bh))
     button34.grid(row=3,column=4)
     button35 = Tkinter.Button(mainframe, text = 'Exit', command = lambda: test_exit(imglists))
     button35.grid(row=3,column=5)
     label.bind("<Button-1>", lambda e: click_left(e, label, listno, button13))
-    root.bind('a', lambda e: box_add(label, listno, bx, by))
+    root.bind('a', lambda e: box_add(label, listno, bx, by, bw, bh))
+    root.bind("<Button-3>", lambda e: click_right(e, label, listno, button13))
+    root.bind('6', lambda e: wide_lr(e, label, listno, button13))
+    root.bind('4', lambda e: short_lr(e, label, listno, button13))
+    root.bind('8', lambda e: wide_ub(e, label, listno, button13))
+    root.bind('2', lambda e: short_ub(e, label, listno, button13))
+    root.bind('<Right>', lambda e: center_r(e, label, listno, button13))
+    root.bind('<Left>', lambda e: center_l(e, label, listno, button13))
+    root.bind('<Up>', lambda e: center_u(e, label, listno, button13))
+    root.bind('<Down>', lambda e: center_b(e, label, listno, button13))
     root.mainloop()
     return
    
