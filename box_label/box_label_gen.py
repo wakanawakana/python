@@ -2,7 +2,9 @@
 """
 Created on Thu Apr 13 11:01:30 2017
 
-@author: 10008777
+This is a tool to label a box for YOLO
+Use in a hierarchy with images folder
+Save csv with Exit
 """
 import cv2
 import os
