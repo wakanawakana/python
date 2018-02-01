@@ -1,6 +1,6 @@
 """
 So simple job execution service.
-For example, by executing this script with linux or docker and rewriting job.txt,
+For example, by executing this script with linux, windows or docker and rewriting job.txt,
 commands can be reserved and executed continuously.
 Most things can be done using basic scripts and terminal commands.
 If you do not manage access rights and users, you can reserve jobs by rewriting job.txt by multiple users
