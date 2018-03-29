@@ -11,11 +11,11 @@ class cvVideoAccess:
         self.file = ""
         self.cap = None
         self.writer = None
+        self.fourcc = 0
         return
         
     def __del__(self):
-        if self.cap is not None: self.cap.release()
-        if self.writer is not None: self.writer.release()
+        self.close()
         return
 
     def open(self, filename):
@@ -27,13 +27,18 @@ class cvVideoAccess:
         self.frames = int(self.cap.get(7)) # CV_CAP_PROP_FRAME_COUNT
         return
         
-    def create(self, filename, width, height, fps, fourcc):
+    def close(self):
+        if self.cap is not None: self.cap.release()
+        if self.writer is not None: self.writer.release()
+        return
+        
+    def create(self, filename, width, height, fps, fourcc=None):
         self.file = filename
-        self.fourcc = fourcc
         self.width = width
         self.height = height
         self.fps = fps
-        self.writer = cv2.VideoWriter(filename, fourcc, fps, (width, height))
+        if fourcc is not None: self.fourcc = fourcc
+        self.writer = cv2.VideoWriter(filename, self.fourcc, fps, (width, height))
         return
         
     def set_frame(self, frame, fno):
@@ -80,4 +85,7 @@ class cvVideoAccess:
         
     def video_frames(self):
         return self.frames
-        
+    
+    def set_forcc(self, s):
+        self.fourcc = cv2.VideoWriter_fourcc(*s)
+        return
