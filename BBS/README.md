@@ -20,6 +20,6 @@ Same opencv template matching
     bbs = BestBuddiesSimilarity()  
     pz = 3  
     gamma = 2.0  
-    max_pt, max_value, res = bbs.BBS(temp, search, pz, gamma)  
+    max_pt, max_value, res = bbs.BBS(template, search, pz, gamma)  
 
  
