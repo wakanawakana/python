@@ -12,7 +12,7 @@ All code is provided for research purposes only and without any warranty.
 
 How to use:
 ==================
- same opencv template matching
+`same opencv template matching
  ex:
         template = cv2.imread('template.png')
         search = cv2.imread('search.png')
@@ -20,5 +20,5 @@ How to use:
         pz = 3
         gamma = 2.0
         max_pt, max_value, res = bbs.BBS(temp, search, pz, gamma)
-
+`
  
