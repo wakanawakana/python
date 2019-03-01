@@ -14,6 +14,7 @@ How to use:
 ==================
 Same opencv template matching  
  ex:  
+ 
     template = cv2.imread('template.png')  
     search = cv2.imread('search.png')  
     bbs = BestBuddiesSimilarity()  
