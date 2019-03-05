@@ -153,7 +153,39 @@ class BestBuddiesSimilarity:
 
         bbs = bbs.astype(np.float) / N
         bbs = cv2.resize(bbs, (xn*3, yn*3))
-        max_pt = divmod(np.argmax(bbs), bbs.shape[1])
-        max_pt = (max_pt[1], max_pt[0]) # opencv style
-        max_value = bbs[max_pt[0], max_pt[1]]
+        min_value, max_value, min_pt, max_pt = cv2.minMaxLoc(bbs)
         return max_pt, max_value, bbs
+
+    def BBS_full(self, Template, Image, gamma):
+        th, tw = Template.shape[0:2]
+        xn = Image.shape[1] - tw
+        yn = Image.shape[0] - th
+        bbs = np.zeros([yn, xn], dtype=np.int32)
+
+        Tmat = self.im2col(Template, [int(pz),int(pz)], 'sliding')
+        Imat = self.im2col(Image, [int(pz),int(pz)], 'sliding')
+        N = Tmat.shape[1]
+
+        if Template.ndim == 2:
+            Fmat = np.tile((self.gausian([pz,pz], 0.6, N))[:, np.newaxis], [1, 1])
+        elif Template.shape[2] != Image.shape[2]: return None, None, None
+        Fmat = np.tile((self.gausian([pz,pz], 0.6, N))[:, np.newaxis], [1, 3])
+
+        Imat = Imat * Fmat
+        Tmat = Tmat * Fmat
+        dxy = self.distance1(Template.shape[:2])
+        Indmat = np.arange(Imat.shape[1]).reshape(np.array([Image.shape[1]-2,Image.shape[0]-2])).T
+        drgb = np.empty((N,N))
+        drgbbuf = np.zeros((N, N, Image.shape[0] - Template.shape[0]))
+        bbp1 = np.empty((N,N), dtype=np.uint8)
+        bbp2 = np.empty((N,N), dtype=np.uint8)
+        nrage = np.arange(N)
+        twpz = tw - 2
+        thpz = th - 2
+
+        self.BBS_calc(Imat, Tmat, Indmat, drgb, dxy, drgbbuf, bbp1, bbp2, bbs, nrage, gamma, N, xn, yn, twpz, thpz)
+
+        bbs = bbs.astype(np.float) / N
+        min_value, max_value, min_pt, max_pt = cv2.minMaxLoc(bbs)
+        return max_pt, max_value, bbs
+
