@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# Used with chainer-imagenet-vgg
+#  https://github.com/mitmul/chainer-imagenet-vgg
 
 import argparse
 import numpy as np
