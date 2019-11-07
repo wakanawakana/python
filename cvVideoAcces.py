@@ -2,7 +2,6 @@
 """
 Created on Fri Apr 28 12:48:05 2017
 """
-
 import cv2
 import datetime
 
@@ -11,11 +10,19 @@ class cvVideoAccess:
         self.file = ""
         self.cap = None
         self.writer = None
-        self.fourcc = 0
+        self.resize_w = 1
+        self.resize_h = 1
+        self.width = 1
+        self.height = 1
+        self.resize = 0
+        self.frames = 0
+        self.fps = 0.0
+        self.forcc = ""
         return
         
     def __del__(self):
-        self.close()
+        if self.cap is not None: self.cap.release()
+        if self.writer is not None: self.writer.release()
         return
 
     def open(self, filename):
@@ -24,21 +31,35 @@ class cvVideoAccess:
         self.fps = self.cap.get(5) # CV_CAP_PROP_FPS
         self.width = self.cap.get(3) # CV_CAP_PROP_FRAME_WIDTH
         self.height = self.cap.get(4) # CV_CAP_PROP_FRAME_HEIGHT
-        self.frames = int(self.cap.get(7)) # CV_CAP_PROP_FRAME_COUNT
+        self.frames = int(self.cap.get(7)) # CV_CAP_PROP_FRAME_COUNT 正確ではない
+        self.resize_w = int(self.width)
+        self.resize_h = int(self.height)
+        self.resize = 0
+        forcc = int(self.cap.get(6)) # CV_CAP_PROP_FOURCC
+        c1 = (forcc & 0xFF000000) >> 24
+        c2 = (forcc & 0xFF0000) >> 16
+        c3 = (forcc & 0xFF00) >> 8
+        c4 = (forcc & 0xFF)
+        self.forcc = chr(c4) + chr(c3) + chr(c2) + chr(c1)
+        # opencv frame数検出の不具合対策 自力で探す
+        ret, frame = self.get_frame(self.frames-1)
+        while(ret==False):
+            self.frames -= 1
+            ret, frame = self.get_frame(self.frames-1)     
         return
-        
+
     def close(self):
         if self.cap is not None: self.cap.release()
         if self.writer is not None: self.writer.release()
         return
-        
-    def create(self, filename, width, height, fps, fourcc=None):
+
+    def create(self, filename, width, height, fps, fourcc):
         self.file = filename
+        self.fourcc = fourcc
         self.width = width
         self.height = height
         self.fps = fps
-        if fourcc is not None: self.fourcc = fourcc
-        self.writer = cv2.VideoWriter(filename, self.fourcc, fps, (width, height))
+        self.writer = cv2.VideoWriter(filename, fourcc, round(fps), (width, height))
         return
         
     def set_frame(self, frame, fno):
@@ -68,11 +89,30 @@ class cvVideoAccess:
         
     def get_next(self):
         ret, frame = self.cap.read()
+        if self.resize == 1:
+            frame = cv2.resize(frame, (self.resize_w, self.resize_h))
         return ret, frame
         
     def get_frame(self, fno):
         self.seek_frame(fno)
         return self.get_next()
+    
+    def put_frame(self, frame):
+        self.writer.write(frame)
+        return
+    
+    def current_frame(self):
+        no = int(self.cap.get(1)) # CV_CAP_PROP_POS_FRAME
+        return no
+    
+    def resized(self, w, h):
+        self.resize_h = h
+        self.resize_w = w
+        if int(self.width) != w or int(self.height) != h:
+            self.resize = 1
+        else:
+            self.resize = 0
+        return
         
     def video_width(self):
         return int(self.width)
@@ -85,7 +125,4 @@ class cvVideoAccess:
         
     def video_frames(self):
         return self.frames
-    
-    def set_forcc(self, s):
-        self.fourcc = cv2.VideoWriter_fourcc(*s)
-        return
+        
